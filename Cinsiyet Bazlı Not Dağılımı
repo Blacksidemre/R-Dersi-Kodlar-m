@@ -1,0 +1,62 @@
+install.packages("dplyr")
+library(dplyr)
+install.packages("car")
+library(car)
+install.packages("onewaytests")
+library(onewaytests)
+set.seed(1)
+
+df=data.frame(
+  cinsiyet=factor(c(rep("E",50),rep("K",50))),
+  not=c(round(rnorm(50,50,15),round(rnorm(50,65,10)))
+  )
+  
+  TANIST_MAT=df%>%
+    group_by(cinsiyet) %>%
+    summarise(ORT =mean(not),
+              SS= sd(not),
+              MED= median(not),
+              IQR= IQR(not))
+  
+  str(df)
+  NORM_MAT=df%>%
+    group_by(cinsiyet) %>%
+    summarise(statistic=shapiro.test(not)$statistic), p.value=shapiro.test(not)$p.value))
+
+P_SHAP=as.numeric(as.matrix(NORM_MAT[,3]))
+
+normallik_sonucu=c()
+
+if(all (P_SHAP>0.05)){
+  normallik_sonucu=TRUE
+} else{
+  normallik_sonucu=FALSE
+}
+
+P_LEVENE=leveneTest(not~cinsiyet,data=df,center="mean")["Pr(>F)"][1,1]
+VHS=c()
+
+if(P_LEVENE>0.05){
+  VHS=TRUE
+} else {
+  VHS=FALSE
+}  
+
+??F(normallik_sonucu){
+  if(VHS){
+    print(t.test(not~cinsiyet,data=df,var.equal=TRUE))
+    print("T TEST??")
+    print(TANIST_MAT[,2:3])
+    
+  } else{
+    print(t.test(not~cinsiyet, data=df,var.equal=FALSE))
+    print("WELCH TEST??")
+    print(TANIST_MAT[,2:3)
+  }
+} else {
+  print(mw.test(not~cinsiyet,data=df))
+  print("MANN WHITNEY TEST??")
+  print(TANIST_MAT[,4:5])
+}
+
+
